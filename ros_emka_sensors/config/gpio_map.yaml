@@ -1,0 +1,11 @@
+# Name     # Output 
+plc:
+  BUTTON_G1: 0
+  BUTTON_R1: 1
+  BUTTON_G2: 2
+  BUTTON_R2: 3
+  DOOR_UP: 4
+  DOOR_DOWN: 5
+  CELL_1: 6 
+  CELL_2: 7
+  CELL_3: 8

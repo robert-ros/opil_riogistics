@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="digital_inputs" value="9" />
+    
+
+    <!-- Load PLC GPIO map configuration -->  
+    <rosparam command="load" file="$(find ros_emka_sensors)/config/gpio_map.yaml" />
+
+
+    <!-- Launch modbus communication  -->
+    <node pkg="ros_emka_sensors" type="emka_modbus.py" name="emka_modbus_node" output="screen">
+        <param name="digital_inputs" value="$(arg digital_inputs)" />
+
+    </node>
+    
+
+</launch>
