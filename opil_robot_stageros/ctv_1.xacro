@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro"
+       name="ctv_1" >
+
+    <!-- MODELS -->
+
+	<!-- robot model -->
+        <xacro:include filename="$(find mars_simulation_data)/data/ctv.xacro" />
+
+    <link name="/base_link">
+		<origin xyz="0 0 0" rpy="0 0 0 "/>
+    </link>
+
+	<!-- CTV -->
+	<xacro:ctv name="ctv_1" parent="/base_link">
+		<origin xyz="0 0 0" rpy="0 0 0" />
+  	</xacro:ctv>
+
+</robot>

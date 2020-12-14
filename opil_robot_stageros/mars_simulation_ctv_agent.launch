@@ -1,0 +1,81 @@
+
+<launch>
+	<arg name="robot_name" default=""/>
+	<arg name="use_initial_pose" default="false"/>
+	<!-- Pose in meter -->
+	<arg name="initial_pose_x" default="0.0"/>
+	<arg name="initial_pose_y" default="0.0"/>
+	<!-- In degree -->
+	<arg name="initial_pose_a" default="0.0"/>
+	<arg name="namespace" default="mars_simulation_ctv_agent"/>
+	<arg name="robot_description" default="robot_description_default"/>
+	<arg name="robot_id" default="00000000-0000-0000-0000-000000000000"/>
+
+	<!-- topics-->
+	<arg name="cancel_task_topic" default="cancel_order" />
+	<arg name="action_assignment_topic" default="action_assignment" />
+	<arg name="motion_assignment_topic" default="motion_assignment" />
+	<arg name="robot_description_topic" default="robot_description" />
+	<arg name="assignment_state_topic" default="assignment_state" />
+	<arg name="robot_state_topic" default="robot_state" />
+	<arg name="battery_state_topic" default="battery_state" />
+	<arg name="current_motion_topic" default="current_motion" />
+	<!-- <arg name="cmd_vel_topic" default="cmd_vel" />  Editado por Robert -->
+	<arg name="cmd_vel_topic" default="/cmd_vel" />
+	<arg name="scan_topic" default="scan_topic" />
+	<arg name="actual_state_topic" default="actual_state" />
+	<arg name="init_pose_topic" default="init_pose" />
+
+	<arg name="log_level" default="debug" />
+
+	<!-- run mars_simulation_ctv_agent -->
+	<node pkg="mars_simulation_ctv_agent" type="mars_simulation_ctv_agent_node" name="$(arg namespace)" output="screen">
+
+		<!--Robot Id -->
+		<param name="robot_id" value="$(arg robot_id)" />
+
+		<!--Parameter to configer the status message frequencies -->
+		<param name="current_motion_msg_frequency" value="10" />
+		<param name="battery_state_msg_frequency" value="10" />
+		<param name="robot_state_msg_frequency" value="10" />
+		<param name="node_rate" value="50" />
+
+		<param name="log_level" value="$(arg log_level)" />
+
+		<!-- Parameter to set the frames -->
+		<param name="global_frame_id" value="/map"/>
+		<param name="robot_frame_id" value="/base_link"/>
+
+		<!-- Parameters to set the topic names -->
+		<param name="cancel_task_topic" value="$(arg cancel_task_topic)" />
+		<param name="action_assignment_topic" value="$(arg action_assignment_topic)" />
+		<param name="motion_assignment_topic" value="$(arg motion_assignment_topic)" />
+		<param name="robot_description_topic" value="$(arg robot_description_topic)" />
+		<param name="assignment_state_topic" value="$(arg assignment_state_topic)" />
+		<param name="robot_state_topic" value="$(arg robot_state_topic)" />
+		<param name="battery_state_topic" value="$(arg battery_state_topic)" />
+		<param name="current_motion_topic" value="$(arg current_motion_topic)" />
+		<param name="cmd_vel_topic" value="$(arg cmd_vel_topic)" />
+		<param name="scan_topic" value="$(arg scan_topic)" />
+		<param name="actual_state_topic" value="$(arg actual_state_topic)" />
+		<param name="init_pose_topic" value="$(arg init_pose_topic)" />
+
+		<!-- Parameter to configure the obstacle detection -->
+		<param name="obstacle_detection" value="true"/>
+		<param name="laserScan_threshold" value="0.5"/>
+		<param name="laserScan_minAngle" value="1.13"/>
+		<param name="laserScan_maxAngle" value="2.01"/>
+
+		<!-- Parameter to configure the goal threshold -->
+		<param name="linear_tolerance" value="0.05"/>
+		<param name="angular_tolerance" value="0.09"/>
+
+		<!-- Parameter to set the initial pose -->
+		<param name="use_initial_pose" value="$(arg use_initial_pose)"/>
+		<param name="initial_pose_x" value="$(arg initial_pose_x)"/>
+		<param name="initial_pose_y" value="$(arg initial_pose_y)"/>
+		<param name="initial_pose_a" value="$(arg initial_pose_a)"/>
+	</node>
+	<!-- Parameter to configure the driving behaviour of the robot -->
+	<include file="$(find mars_simulation_ctv_agent)/launch/$(arg robot_description).launch" ns="$(arg namespace)"/>
+</launch>

@@ -1,0 +1,58 @@
+<launch>
+  <arg name="robot_1_name" default="robot_1" />
+
+  <arg name="initial_pose_robot_1_x" default="0.0"/>
+  <arg name="initial_pose_robot_1_y" default="0.0"/>
+  <arg name="initial_pose_robot_1_a" default="0.0"/>
+
+  <arg name="robot_1_description" default="robot_description_default"/>
+
+  <arg name="robot_1_ns" default="00000000000000000000000000000001"/>
+
+  <arg name="robot_1_id" default="00000000-0000-0000-0000-000000000001"/>
+
+  <!-- ****** Firos ***** 
+  <node name="firos" pkg="firos" type="core.py"/>
+  -->
+
+  <!-- RVIZ 
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mars_simulation)/rviz/opil_finnland.rviz" />
+-->
+
+  <!--  ****** Stage simulation ***** 
+  <include file="$(find mars_simulation)/launch/opil_finnland_simulation.launch"/>
+ -->
+
+    <!-- BEGIN ROBOT 0 -->
+    <group ns="robot_opil_v2">
+      <!-- <param name="tf_prefix" value="robot_1" /> -->
+
+      <!-- start path planner (this launch file uses a few yaml-files to configure the planner) -->
+      <include file="$(find mars_simulation_ctv_agent)/launch/mars_simulation_ctv_agent.launch">
+        <arg name="robot_id" value="$(arg robot_1_id)"/>
+        <arg name="robot_name" value="$(arg robot_1_name)"/>
+        <arg name="initial_pose_x" value="$(arg initial_pose_robot_1_x)"/>
+        <arg name="initial_pose_y" value="$(arg initial_pose_robot_1_y)"/>
+        <arg name="initial_pose_a" value="$(arg initial_pose_robot_1_a)"/>
+        <arg name="robot_description" value="$(arg robot_1_description)"/>
+        <arg name="scan_topic" value="base_laser_link" />
+      </include>
+
+      <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0 1 map robot_1/odom" /> -->
+<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0 1 map odom" /> -->
+
+<!--
+      <node name="fake_localization" pkg="fake_localization" type="fake_localization">
+        <param name="odom_frame_id" value="robot_1/odom"/>
+        <param name="base_frame_id" value="robot_1/base_link"/>
+      </node>
+-->
+      <!--  ***************** Robot Model *****************  -->
+      <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find mars_simulation)/urdf/ctv_1.xacro'" />
+
+      <node pkg="robot_state_publisher" type="state_publisher" name="state_publisher"/>  
+
+    </group>
+
+</launch>
+

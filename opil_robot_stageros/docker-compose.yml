@@ -1,0 +1,49 @@
+version: "3"
+services:      
+
+#RAN Lanzar floorplan world
+    ran: 
+        image: "docker.ramp.eu/opil/opil.iot.ran"
+        environment: 
+            - "ROS_MASTER_URI=http://localhost:11311"
+            - DISPLAY=$DISPLAY
+        volumes:
+            - /tmp/.X11-unix:/tmp/.X11-unix:rw
+            - ./mod_iot_ran_no_fakelocalization.launch:/catkin_ws/src/mod_iot_ran/launch/mod_iot_ran.launch
+
+            - ./opil_finnland_simulation.launch:/catkin_ws/src/mars_simulation_bringup/mars_simulation/launch/opil_finnland_simulation.launch
+            - ./robot_description_default.launch:/catkin_ws/src/mars_simulation_ctv_agent/launch/robot_description_default.launch
+            - ./floorplan.world:/catkin_ws/src/mars_simulation_bringup/mars_simulation_data/world/floorplan.world:ro
+            - ./floorplan.yaml:/catkin_ws/src/mars_simulation_bringup/mars_simulation_data/world/floorplan.yaml:ro
+            - ./floorplan.png:/catkin_ws/src/mars_simulation_bringup/mars_simulation_data/world/map.png:ro
+            # - ./ctv_1.xacro:/catkin_ws/src/mars_simulation_bringup/mars_simulation/urdf/ctv_1.xacro
+            - ./mars_simulation_ctv_agent.launch:/catkin_ws/src/mars_simulation_ctv_agent/launch/mars_simulation_ctv_agent.launch
+        ports: 
+            - "39000:39000"
+
+
+#S&P Lanzar floorplan yaml y png
+    splocal:
+        restart: always
+        image: docker.ramp.eu/opil/opil.iot.sp.local
+        volumes:
+            #- path on the host : path inside the container
+            - /tmp/.X11-unix:/tmp/.X11-unix:rw
+            - ./amcl.launch:/amcl_map.launch:ro
+            - ./local_robot.launch:/local_robot.launch:ro
+            - ./firos_robots.json:/robots.json:ro
+            - ./firos_whitelist.json:/whitelist.json:ro
+            - ./floorplan.yaml:/map.yaml:ro
+            - ./floorplan.png:/map.png:ro
+            - ./floorplan.world:/map.world:ro
+        environment:
+            - "ROS_MASTER_URI=http://ran:11311"
+            - "ROS_HOSTNAME=splocal"
+            - FIWAREHOST=192.168.176.46 # IP of the OPIL server 
+            - HOST=192.168.176.46       # IP of the machine that runs this docker
+            - DISPLAY=$DISPLAY
+            - SIMULATION=false
+        ports: 
+            - "39003:39003"
+
+

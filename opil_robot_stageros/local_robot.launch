@@ -1,0 +1,41 @@
+<launch>
+<node name="map_server" pkg="map_server" type="map_server" args="$(find lam_simulator)/yaml/map.yaml" respawn="false" >
+<param name="frame_id" value="/map" />
+</node>
+
+
+<node pkg="stage_ros" type="stageros" name="stageros" args="$(find lam_simulator)/yaml/map.world" respawn="false" >
+    <param name="base_watchdog_timeout" value="0.1"/>
+</node>
+
+
+     <include file="$(find lam_simulator)/launch/amcl_map.launch" />
+
+     <!--- Run pubPoseWithCovariance node from sensing_and_perception package-->
+     <!-- Put args="1" if you are testing the robot with the id number 1 -->
+     <node name="publishPoseWithCovariance" pkg="sensing_and_perception" type="pubPoseWithCovariance" output="screen" args="0"> 
+        <param name="amcl_topic" value="/amcl_pose" />
+        <param name="map_frame" value="/map" />
+        <param name="base_frame" value="/base_link" />
+    </node>
+
+     <!--- Run mapup node from mapupdates package-->
+     <!-- Put args="1" if you are testing the robot with the id number 1 -->
+    <node name="mapup" pkg="mapupdates" type="mapup" output="screen" args="0" >
+        <param name="cell_size" type="double" value="2.7" />
+        <param name="laser_inverted" type="bool" value="0" />
+        <param name="scan_topic" value="/base_scan" />
+        <param name="map_frame" value="/map" />
+        <param name="map_service_name" value="/static_map" />
+    </node>
+
+    <!-- Run FIROS -->
+    <node name="firos" pkg="firos" type="core.py" />
+
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lam_simulator)/rviz_cfg/singlerobot.rviz" /> 
+
+
+
+</launch>
+
