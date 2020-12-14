@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="address" default="localhost" />
+
+    <!-- Launch san docker client -->
+
+    <node pkg="opil_san_sensors" type="opil_san_sensors_client_trigger.py" name="opil_san_sensors_client_button_g1" output="screen">
+        <param name = "address" value="$(arg address)" />
+        <param name = "port" value="10001"/>
+        <param name = "id" value="button_g1" />
+    </node>
+
+    <node pkg="opil_san_sensors" type="opil_san_sensors_client_trigger.py" name="opil_san_sensors_client_button_r1" output="screen">
+        <param name = "address" value="$(arg address)" />
+        <param name = "port" value="10002"/>
+        <param name = "id" value="button_r1" />
+    </node>
+
+    <node pkg="opil_san_sensors" type="opil_san_sensors_client_trigger.py" name="opil_san_sensors_client_button_g2" output="screen">
+        <param name = "address" value="$(arg address)" />
+        <param name = "port" value="10003"/>
+        <param name = "id" value="button_g2" />
+    </node>
+
+    <node pkg="opil_san_sensors" type="opil_san_sensors_client_trigger.py" name="opil_san_sensors_client_button_r2" output="screen">
+        <param name = "address" value="$(arg address)" />
+        <param name = "port" value="10004"/>
+        <param name = "id" value="button_r2" />
+    </node>
+
+    <node pkg="opil_san_sensors" type="opil_san_sensors_client_state.py" name="opil_san_sensors_client_door" output="screen">
+        <param name = "address" value="$(arg address)" />
+        <param name = "port" value="10005"/>
+        <param name = "id" value="door" />
+    </node>
+
+    <node pkg="opil_san_sensors" type="opil_san_sensors_client_state.py" name="opil_san_sensors_client_cell_1" output="screen">
+        <param name = "address" value="$(arg address)" />
+        <param name = "port" value="10006"/>
+        <param name = "id" value="cell_1" />
+    </node>
+
+    <node pkg="opil_san_sensors" type="opil_san_sensors_client_state.py" name="opil_san_sensors_client_cell_2" output="screen">
+        <param name = "address" value="$(arg address)" />
+        <param name = "port" value="10007"/>
+        <param name = "id" value="cell_2" />
+    </node>
+
+    <node pkg="opil_san_sensors" type="opil_san_sensors_client_state.py" name="opil_san_sensors_client_cell_3" output="screen">
+        <param name = "address" value="$(arg address)" />
+        <param name = "port" value="10008"/>
+        <param name = "id" value="cell_3" />
+    </node>
+
+</launch>
