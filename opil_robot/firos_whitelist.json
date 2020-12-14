@@ -1,0 +1,17 @@
+{
+    "robot_opil_v2": {
+        "publisher": [
+            "cancel_order",
+            "motion_assignment",
+            "action_assignment"
+        ],
+        "subscriber": [
+            "current_motion",
+            "robot_description"
+        ]
+    },
+    "robot_0": {
+        "subscriber": ["pose_channel","newObstacles"]
+    }
+}
+

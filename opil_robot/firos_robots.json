@@ -1,0 +1,39 @@
+
+{
+    "robot_opil_v2": {
+        "topics": {
+            "current_motion": {
+                "msg": "mars_agent_physical_robot_msgs.msg.Motion",
+                "type": "subscriber"
+            },
+            "robot_description": {
+                "msg": "mars_agent_physical_robot_msgs.msg.RobotAgentProperties",
+                "type": "subscriber"
+            },
+            "cancel_order": {
+                "msg": "mars_agent_physical_robot_msgs.msg.CancelTask",
+                "type": "publisher"
+            },
+            "motion_assignment": {
+                "msg": "mars_agent_physical_robot_msgs.msg.MotionAssignment",
+                "type": "publisher"
+            },
+            "action_assignment": {
+                "msg": "mars_agent_physical_robot_msgs.msg.ActionAssignment",
+                "type": "publisher"
+            }
+        }
+    },
+    "robot_0":{
+        "topics": {
+            "pose_channel": {
+                "msg": "geometry_msgs.msg.PoseWithCovarianceStamped",
+                "type": "subscriber"
+            },
+            "newObstacles": {
+                "msg": "mapupdates.msg.NewObstacles",
+                "type": "subscriber"
+            }
+        }
+    } 
+}

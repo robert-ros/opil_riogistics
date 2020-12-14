@@ -1,0 +1,50 @@
+version: "3.1"
+services:      
+
+    #RAN 
+    ran: 
+        image: "docker.ramp.eu/opil/opil.iot.ran"
+        environment: 
+
+            - DISPLAY=$DISPLAY
+        volumes:
+            - ./hosts:/etc/hosts             
+            - /tmp/.X11-unix:/tmp/.X11-unix:rw
+            - ./mod_iot_ran_no_fakelocalization.launch:/catkin_ws/src/mod_iot_ran/launch/mod_iot_ran.launch
+
+            - ./robot_description_default.launch:/catkin_ws/src/mars_simulation_ctv_agent/launch/robot_description_default.launch
+
+            - ./floorplan.yaml:/catkin_ws/src/mars_simulation_bringup/mars_simulation_data/world/floorplan.yaml:ro
+            - ./floorplan.png:/catkin_ws/src/mars_simulation_bringup/mars_simulation_data/world/map.png:ro
+
+            - ./mars_simulation_ctv_agent.launch:/catkin_ws/src/mars_simulation_ctv_agent/launch/mars_simulation_ctv_agent.launch
+        ports: 
+            - "39000:39000"
+
+        network_mode: "host"
+
+    #S&P 
+    splocal:
+        image: docker.ramp.eu/opil/opil.iot.sp.local
+        volumes:
+            - ./hosts:/etc/hosts              
+            - ./ros_entrypoint.sh:/ros_entrypoint.sh
+            - /tmp/.X11-unix:/tmp/.X11-unix:rw
+            - ./local_robot.launch:/local_robot.launch:ro
+            - ./firos_robots.json:/robots.json:ro
+            - ./firos_whitelist.json:/whitelist.json:ro
+            - ./floorplan.yaml:/map.yaml:ro
+            - ./floorplan.png:/map.png:ro
+
+        environment:
+            - FIWAREHOST=192.168.176.66 # Opil server IP
+            - HOST=192.168.176.78       # rbares IP
+            - DISPLAY=$DISPLAY
+            - SIMULATION=false
+        ports: 
+            - "39003:39003"
+
+        network_mode: "host"
+
+
+
