@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<launch>
+	<!-- RB ARES PARAMETERS -->
+
+	<!-- Robot Type -->
+	<param name="type" value="default"/>
+
+	<!-- Control parameter to configure the driving behaviour of the robot -->
+	<param name="gain_kp" value="1.5"/>
+	<param name="gain_ki" value="1.0"/>
+	<param name="gain_kd" value="0.1"/>
+
+        <!-- Footprint of a CTV -->
+	<rosparam param="footprint_x">[0.2, -0.2, -0.2, 0.2]</rosparam>
+        <rosparam param="footprint_y">[0.2, 0.2, -0.2, -0.2]</rosparam>
+
+        <param name="min_height" value="1.0"/>
+        <param name="max_height" value="1.0"/>
+        <param name="payload" value="250.0"/>
+
+
+        <param name="max_pos_x_vel" value="1.15"/>
+        <param name="max_neg_x_vel" value="0.1"/>
+        <param name="max_pos_x_acc" value="0.3"/> 
+        <param name="max_neg_x_acc" value="0.1"/>
+        <param name="max_pos_y_vel" value="0.1"/>
+        <param name="max_neg_y_vel" value="0.1"/>
+        <param name="max_pos_y_acc" value="0.1"/>
+        <param name="max_neg_y_acc" value="0.1"/> 
+        <param name="max_pos_ang_vel" value="0.4"/>  
+        <param name="max_neg_ang_vel" value="0.4"/>  
+        <param name="max_pos_ang_acc" value="0.2"/>  
+        <param name="max_neg_ang_acc" value="0.2"/>  
+        <param name="velocity_control_sensitivity" value="4.0"/>
+	<param name="min_turning_radius" value="0.0"/>  
+
+        <param name="batt_capacity" value="1.0"/>
+        <param name="batt_max_voltage" value="1.0"/>
+        <param name="vendor" value="Robotnik"/>
+        <param name="action_capability" value="default"/>
+	<param name="weight" value="1.0"/>
+</launch>
