@@ -1,0 +1,98 @@
+version: "3.1"
+
+services:
+    ### Database for Context Broker ###
+    mongo:
+        image: mongo:3.4
+        command: --nojournal
+
+    ### Proxy for Context Broker ###
+    ngsiproxy:
+        image: fiware/ngsiproxy:1.2
+        ports:
+            - 3000:3000
+
+    ### Context Broker ###
+    orion:
+        image: fiware/orion:2.3.0
+        depends_on:
+            - mongo
+            - ngsiproxy
+        ports:
+            - 1026:1026
+        command:
+            -dbhost mongo -corsOrigin __ALL -inReqPayloadMaxSize 2097152
+
+    ### S&P ###
+    sp:
+        image: docker.ramp.eu/opil/opil.sw.sp.central:latest
+        volumes:
+            - /tmp/.X11-unix:/tmp/.X11-unix:rw
+            - ./annotations.ini:/annotations.ini:ro
+            - ./emka_map.yaml:/map.yaml:ro
+            - ./emka_map_reduced.png:/map.png:ro
+            - ./topology.launch:/topology.launch:ro
+        environment:
+            - FIWAREHOST=orion
+            - HOST=sp
+            - DISPLAY=$DISPLAY
+        ports: 
+            - "39002:39002"
+
+
+
+    ### Database for HMI ###
+    mongodb:
+        image: mongo:3.6
+        volumes:
+        - ./mongo/data:/data/db
+
+    ### HMI web app ###
+    hmi:
+        image: docker.ramp.eu/opil/opil.sw.hmi:latest
+        volumes:
+            - ./public/uploads:/usr/src/app/public/uploads
+        environment:
+            - inituser=admin
+            - initpw=admin
+            - ocb_host=192.168.1.14
+            - ocb_port=1026
+            - ngsi_proxy_host=192.168.1.14
+            - ngsi_proxy_port=3000
+        ports:
+            - "80:8081"
+        depends_on:
+            - mongodb
+            - orion
+        command: bash -c './wait-for mongodb:27017 -- node server.js'
+
+    ### TP ###
+    ts:
+        image: docker.ramp.eu/opil/opil.sw.tp.ts:latest
+        depends_on:
+        - mtp
+        - orion
+        environment:
+        - PYTHONUNBUFFERED=1
+        - "ROS_MASTER_URI=http://mtp:12345"
+        volumes:
+        - ./ts_fiware_config.ini:/catkin_ws/src/tasksupervisor/fiware_config.ini
+        ports:
+        - "2906:2906"  
+
+    mtp:
+        image: docker.ramp.eu/opil/opil.sw.tp.mtp:latest
+        depends_on:
+        - orion
+        environment:
+        - "ROS_MASTER_URI=http://localhost:12345"
+        - DISPLAY=$DISPLAY
+        ports:
+        - "12345:12345"
+        - "39001:39001"
+        volumes:
+        - ./firos_robots.json:/catkin_ws/src/firos/config/robots.json
+        - ./firos_whitelist.json:/catkin_ws/src/firos/config/whitelist.json
+        - ./firos_config.json:/catkin_ws/src/firos/config/config.json
+        - ./mod_sw_tp.launch:/catkin_ws/src/mod_sw_tp/launch/mod_sw_tp.launch
+        - /tmp/.X11-unix:/tmp/.X11-unix:rw

@@ -1,0 +1,100 @@
+# Definitions of the zones
+
+Location pallet_a
+    name = "pallet_a"
+    type = "SmallLoadCarrier"
+end
+
+Location pallet_b
+    name = "pallet_b"
+    type = "SmallLoadCarrier"
+end
+
+Location pallet_c
+    name = "pallet_c"
+    type = "SmallLoadCarrier"
+end
+
+Location pallet_d
+    name = "pallet_d"
+    type = "SmallLoadCarrier"
+end
+
+
+
+# Button events
+
+Event triggerFillRawMaterial
+    name = "fillRawMaterialButton"
+    type = "Boolean"
+end
+
+Event triggerFillProcessedMaterial
+    name = "fillProcessedMaterialButton"
+    type = "Boolean"
+end
+
+# Actions events (a button is used)
+
+Event robotLoad
+    name = "loadCompleted"
+    type = "Boolean"
+end
+
+Event robotUnload
+    name = "unloadCompleted"
+    type = "Boolean"
+end
+
+
+
+# Orders
+
+TransportOrderStep loadWarehouseOld
+    Location pallet_a
+    FinishedBy robotLoad == True 
+end
+
+TransportOrderStep unloadWarehouseOld
+    Location pallet_d
+    FinishedBy robotUnload == True 
+end
+
+TransportOrderStep loadWarehouseNew
+    Location pallet_c
+    FinishedBy robotLoad == True
+end
+
+TransportOrderStep unloadWarehouseNew
+    Location pallet_b
+    FinishedBy robotUnload == True
+end
+
+
+
+# Task 1
+
+task FillRawMaterial
+    TriggeredBy triggerFillRawMaterial == True
+    Transport
+    from loadWarehouseOld
+    to unloadWarehouseNew
+    OnDone FillProcessedMaterial
+end
+
+
+# Task 2
+
+task FillProcessedMaterial
+    TriggeredBy triggerFillProcessedMaterial == True
+    Transport
+    from loadWarehouseNew
+    to unloadWarehouseOld
+    OnDone FillRawMaterial
+end
+
+# Buttons
+# fillRawMaterialButton
+# fillProcessedMaterialButton
+# loadCompleted
+# unloadCompleted

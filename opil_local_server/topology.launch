@@ -1,0 +1,13 @@
+<launch>
+<node name="map_server" pkg="map_server" type="map_server" args="$(find maptogridmap)/launch/map.yaml" respawn="false" >
+<param name="frame_id" value="/map" />
+</node>
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(find maptogridmap)/singlerobot.rviz" />
+<node name="map2gm" pkg="maptogridmap" type="map2gm" output="screen">
+        <param name="cell_size" type="double" value="2.7" />
+        <param name="annotation_file" textfile="$(find maptogridmap)/launch/annotations.ini" />
+</node>
+    <!-- Run FIROS -->
+    <node name="firos" pkg="firos" type="core.py" />
+</launch>
+

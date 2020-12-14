@@ -1,0 +1,20 @@
+{
+    "map": {
+        "publisher": [
+            "graph"
+        ],
+        "subscriber": []
+    },
+    "robot_opil_v2": {
+        "publisher": [
+            "current_motion",
+            "robot_description"
+        ],
+        "subscriber": [
+            "cancel_order",
+            "motion_assignment",
+            "action_assignment"
+        ]
+    }
+}
+

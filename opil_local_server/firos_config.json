@@ -1,0 +1,23 @@
+{
+  "environment": "docker",
+
+  "docker": {
+    "server": {
+        "port"      : 10102
+    },
+    "contextbroker": {
+        "address"   : "192.168.1.14",
+        "port"      : 1026,
+        "subscription": {
+          "throttling": 0,
+          "subscription_length": 300,
+          "subscription_refresh_delay": 0.5
+        }
+    },
+    "endpoint": {
+      "address": "192.168.1.14",
+      "port": 39001
+    },
+    "log_level": "INFO"
+  }
+}
