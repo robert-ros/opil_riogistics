@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="robot_id" default="robot" />
+
+    <arg name="global_frame"   default="robot_map"       />
+    <arg name="base_frame"     default="robot_base_link" />
+    <arg name="threshold_stop" default="0.01"            />  <!-- m/s -->
+    <arg name="threshold_zone" default="1.0"             />  <!-- m -->
+    <arg name="stop_timeout"   default="3.0"             />
+    <arg name="use_markers"    default="true"            />
+
+
+    <group ns="$(arg robot_id)">
+
+        <node pkg="robot_zone_detection" type="zone_detection.py" name="zone_detection_node" output="screen">
+            <param name="global_frame"   value="$(arg global_frame)"   />   
+            <param name="base_frame"     value="$(arg base_frame)"     /> 
+            <param name="threshold_stop" value="$(arg threshold_stop)" /> 
+            <param name="threshold_zone" value="$(arg threshold_zone)" /> 
+            <param name="stop_timeout"   value="$(arg stop_timeout)"   /> 
+            <param name="use_markers"    value="$(arg use_markers)"    /> 
+        </node>
+
+    </group>
+
+</launch>
