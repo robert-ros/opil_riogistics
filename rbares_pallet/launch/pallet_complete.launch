@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Topics, data used by sim pallet algorithm-->
+    <arg name="camera_topic" default="rear_camera/rgb/image_raw" />
+    <arg name="camera_depth_topic" default="rear_camera/depth/points" />
+
+    <!-- Name frame for pds camera -->
+    <arg name="camera_frame" default="o3d3xx/camera_link"/>
+    <arg name="camera_optical_frame" default="o3d3xx/camera_optical_link"/>
+
+
+    <!-- Launch robot zone detection -->
+    <include file="$(find robot_zone_detection)/launch/zone_detection.launch" >
+        <arg name="global_frame" value="map" />
+    </include>
+
+
+    <!-- Launch Gazebo PDS Camera -->
+    <include file="$(find gazebo_pds_client)/launch/pds_client.launch">
+        <arg name="camera_topic" value="$(arg camera_topic)" /> 
+        <arg name="camera_depth_topic" value="$(arg camera_depth_topic)" /> 
+        <arg name="camera_frame" value="$(arg camera_frame)" />
+        <arg name="camera_optical_frame" value="$(arg camera_optical_frame)" />
+    </include>
+    
+
+    <!-- Launch locator PDS Camera -->
+    <include file="$(find rbares_pallet)/launch/utils/PalletPdsLocator.launch" />
+    
+
+    <!-- Launch diff docker -->
+    <include file="$(find rbares_pallet)/launch/utils/diff_docker.launch" />
+
+    <!-- Launch robotnik move -->
+    <include file="$(find rbares_pallet)/launch/utils/move.launch" />
+
+    <!-- Launch Gazebo elevator -->
+    <include file="$(find rbares_pallet)/launch/utils/gazebo_elevator.launch" />
+ 
+
+    <!-- Launch pallet manager 
+    <include file="$(find rbares_pallet)/launch/utils/pallet_manager.launch" />
+ -->
+</launch>

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- general params -->
+    <arg name="robot_id" default="robot"/>
+    <arg name="prefix" default="$(arg robot_id)_"/>
+
+    <!-- Docker frames -->
+    <arg name="fixed_frame" default="$(arg prefix)odom"/>
+    <arg name="robot_base_frame" default="$(arg prefix)base_footprint"/>
+    <arg name="dock_frame" default="$(arg prefix)dock" />
+
+
+    <!-- TF for docking -->
+    <node pkg="tf" type="static_transform_publisher" name="base2dock"
+         args="0.0 0 0 3.14 0 0 $(arg robot_base_frame) $(arg dock_frame) 100" />
+    
+	<group ns="$(arg robot_id)">
+
+	    <!-- Diff docker -->
+	    <node name="diff_docker" pkg="robotnik_docker" type="diff_docker_node" respawn="false" output="screen">
+		<param name="robot_base_frame" type="string" value="$(arg robot_base_frame)" />
+		<param name="fixed_frame" type="string" value="$(arg fixed_frame)" />
+
+		<rosparam command="load" file="$(find rbares_pallet)/config/diff_docker.yaml"/>
+		<remap from="cmd_vel" to="docker/cmd_vel"/>
+	    </node>
+
+	</group>
+
+</launch>

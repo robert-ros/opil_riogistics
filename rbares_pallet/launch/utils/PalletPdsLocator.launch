@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+    
+    <arg name="robot_id" default="robot"/>
+    <arg name="prefix" value="$(arg robot_id)_"/>
+<!--
+    <node pkg="tf" type="static_transform_publisher" name="pds2pds" args="1 0.5 0 0 0 0 $(arg prefix)base_link pds_ifm_camera_link 100" /> 
+-->
+    <group ns="$(arg robot_id)">
+
+        <node pkg="robotnik_locator" type="pallet_locator_node" name="pallet_locator_node" output="log">
+            <param name="robot_base_frame" value="$(arg prefix)base_link"/>
+            <!-- <param name="robot_sensor_frame" value="" /> -->
+            <param name="fixed_frame" value="$(arg prefix)odom"/> 
+            <param name="object_frame" value="$(arg prefix)pds_pallet_noisy_"/>
+            <param name="input_topic_name" value="pds/client/pallet_pose" /> 
+            <rosparam param="apply_transform">[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]</rosparam>
+
+            <param name="mode" value="toggled" />
+            <param name="auto_start" value="true" />
+            <param name="publish_empty_output" value="true" /> 
+            <param name="broadcast_objects" value="true" />    
+            <param name="transform_tolerance" value="0.5" />
+
+            <param name="pds_rate" value="0.5" />
+            <param name="pallet_type" value="BLOCK" />  
+            <param name="depth_hint" value="-1.0" />    
+            <param name="filter_mask" value="FILT_NONE" />  
+        </node>
+
+    </group>
+
+</launch>

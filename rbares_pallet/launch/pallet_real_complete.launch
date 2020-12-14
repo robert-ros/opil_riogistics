@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Name frame for pds camera -->
+    <arg name="camera_frame" default="o3d3xx/camera_link"/>
+    <arg name="camera_optical_frame" default="o3d3xx/camera_optical_link"/>
+
+    <!-- Topics, data only used by SIM pallet algorithm-->
+    <arg name="camera_topic" default="rear_camera/rgb/image_raw" />
+    <arg name="camera_depth_topic" default="rear_camera/depth/points" />
+
+    <!-- Use simulation or real hardware-->
+    <arg name="use_sim" default="false" />
+
+
+    <!-- Launch robot zone detection -->
+    <include file="$(find robot_zone_detection)/launch/zone_detection.launch" >
+        <arg name="global_frame" value="map" />
+    </include>
+
+
+    <!-- Launch Gazebo PDS Camera -->
+    <include if="$(arg use_sim)" file="$(find gazebo_pds_client)/launch/pds_client.launch">
+        <arg name="camera_topic" value="$(arg camera_topic)" /> 
+        <arg name="camera_depth_topic" value="$(arg camera_depth_topic)" /> 
+        <arg name="camera_frame" value="$(arg camera_frame)" />
+        <arg name="camera_optical_frame" value="$(arg camera_optical_frame)" />
+    </include>
+    
+
+    <!-- Launch Real PDS Camera -->
+<group ns="robot">
+    <include unless="$(arg use_sim)" file="$(find pds_client)/launch/client.launch" >
+        <arg name="ip" value="192.168.0.69" />
+        <arg name="port" value="55555" />
+        <arg name="camera_frame" value="$(arg camera_frame)" />
+        <arg name="camera_optical_frame" value="$(arg camera_optical_frame)" />
+    </include>
+</group>
+
+
+    <!-- Launch locator PDS Camera -->
+    <include file="$(find rbares_pallet)/launch/utils/PalletPdsLocator.launch" />
+
+
+    <!-- Launch diff docker -->
+    <include file="$(find rbares_pallet)/launch/utils/diff_docker.launch" />
+
+    <!-- Launch robotnik move -->
+    <include file="$(find rbares_pallet)/launch/utils/move.launch" />
+
+    <!-- Launch Gazebo elevator -->
+    <include if="$(arg use_sim)" file="$(find rbares_pallet)/launch/utils/gazebo_elevator.launch" />
+
+
+
+    <!-- Launch pallet manager 
+    <include file="$(find rbares_pallet)/launch/utils/pallet_manager.launch" >
+        <arg name="use_sim" value="$(arg use_sim)" />
+    <include>
+    -->
+
+</launch>
