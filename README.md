@@ -1,13 +1,27 @@
 # opil_riogistics
 
-Description: this repository contains the software developed in the L4MS project for the integration of the rbares robot in the EMKA factory using OPIL. 
+**Description:** this repository contains the software developed in the L4MS project for the integration of the rbares robot in the EMKA factory using OPIL. 
 
 # Overview
+
+## rbares in EMKA
+
+<img src="images/rbares-in-emka.jpg" width="100%">
+
+## General structure of packages
+
+<img src="images/opil-ros-package-overview.png" width="100%">
+
+## rbares loading a pallet speed x2
+
+<img src="images/load-pallet-speed-x2.gif" width="50%">
+
 
 # General Requirements
 
 * Ubuntu 18.04 
 * ROS Melodic
+* Python 2.7
 * Real or simulated robot
 * rbares packages (included as submodule) 
 * Docker and docker compose
@@ -288,33 +302,163 @@ Once configured the file, the docker can be launched
 $ docker-compose up
 ```
 
-[IMAGEN AQUÍ]
+<!-- [IMAGEN AQUÍ] -->
 
 If everything went well, the robot position will be displayed on the HMI and the robot will be ready to receive tasks.
 
-[IMAGEN AQUÍ]
+<!-- [IMAGEN AQUÍ] -->
 
 Go to the control tab of the HMI and press the ```fillRawMaterialButton``` button. Immediately the rbares robot will start the task. In this case rbares will load a pallet in the warehouse A and takes it to unload it in the warehouse B.
 
-[GIF CARGA/DESCARGA]
+<!-- [GIF CARGA/DESCARGA] -->
 
-[GIF MOVIL ROBOT]
+<!-- [GIF MOVIL ROBOT] -->
 
-Sometimes If the connection is slow the robot will take time to receive the task from the OPIL Server. One way to know if the robot has stated the task is check the output of the docker container.
+Sometimes If the connection is slow the robot will take time to receive the task from the OPIL Server. One way to know if the robot has started the task is check the output of the docker container.
 
-[IMAGEN AQUI]
+<!-- [IMAGEN AQUÍ] -->
 
 Be careful with the real robot and the wireless connection. If the connection is too slow or even lost the robot will start to move in circles.
 
-[GIF ROBOT EN CIRCULOS]
+<!-- [GIF ROBOT EN CIRCULOS]-->
 
 ## opil_robot_vtt
 
+This folder contains the same docker containers as opil_robot folder. The only difference is this folder is prepared to work with the opil server hosted in the VTT Server in Finland.
+
+In our case the IP of the VTT server is ```<ip-address-vtt> = 130.188.160.88``` and the public IP of the robot is ```<public-ip-address> = 89.29.201.235```
+
+Go to ```opil_robot_vtt/docker-compose.yml``` and set the IP address used: 
+
+```
+environment:
+    - FIWAREHOST=<ip-address-vtt> # IP of the OPIL VTT Server
+    - HOST=<public-ip-address> # Public IP of the real robot
+    - DISPLAY=$DISPLAY
+    - SIMULATION=false
+```
+
+**¿How to connect the real robot to the VTT server?**
+
+In the above configuration file a public IP address is needed instead of the IP address of the robot in the network. The reason is that the robot can send data to the server with a local IP but it can not receive anything. This is because the server does not know where to return the information. 
+
+In order to solve this problem, the public IP of the factory network must be used. After that, the network must redirect the requests from the VTT Server to a **specific port and IP**. 
+
+In our case the IP address was the IP of the robot assigned in the network factory. The port was the port of the Local SP docker because FIROS was running there. 
+
+From the point of view of the OPIL Server, it sees the public IP of the network factory and is the network who sends the data to the robot. In other worlds, the OPIL Server knows where is the network factory and the networks knows where is the robot.
+
+<img src="images/opil-robot-vtt-connection.png" width="80%">
+
+<!--
 ## opil_robot_stageros
-
-
-
 ## opil_san_sensors
 ## ros_emka_sensors
-## rbares_pallet
+-->
+
+
 ## robot_zone_detection 
+
+This folder contains a ROS package to detect loading and unloading zones. This package was written because the OPIL Server does not send any signal to the robot when it arrives at the goal. 
+
+**The problem of loading and unloading**
+
+The robot knows that it has arrived but does not where. On the other hand, the OPIL Server knows exactly where is the robot because it compare its position with the zone of the annotations file. (see opil_local_server folder). However, in the annotation file the loading and unloading actions are not specified, only the zones are set. 
+
+One possibility is to specify the actions, nevertheless it is not a generic solution because each zone would perform only one action.
+
+Currently, the topic ```/robot_opil_v2/actual_state```, inside the RAN docker, publishes the state of the robot. When the robot reaches the position, the state is MBS_READY. However in this data is not included the loading and unloading action.
+
+**How was solved in the rbares robot**
+
+In our case since the robot is a pallet truck we needed to know what action to carry out. In that context we implemented the package ```robot_zone_detection``` **to solve in a specific way** this problem.
+
+This ROS node reads the current position of the robot received from the AMCL node. It compares the current position of the robot with the zones set in a file. That file follows the same structure of the annotations.ini file used in the OPIL Server. It was implemented like this because in this way it was only necessary copy-paste. The main difference is that in this file is possible set the load and unload action. Therefore, when the robot is inside a zone and is stopped, it receives the action to perform.
+
+```
+#annotations.ini
+
+[pallet_a]
+point_x = 52.65
+point_y = 10.65
+theta = 270
+distance =1.5
+action = load
+
+
+[pallet_b]
+point_x = 21.94
+point_y = 49.96
+theta = 180
+distance =1
+action = unload
+
+
+[pallet_c]
+point_x = 21.94
+point_y = 39.16
+theta = 180
+distance =1
+action = load
+
+
+[pallet_d]
+point_x = 39.15
+point_y = 3.04
+theta = 270
+distance =1
+action = unload
+
+
+[chrg_1]
+point_x = 31.1
+point_y = 46.273
+theta = 270
+distance = 1
+action = idle
+
+
+[chrg_0]
+point_x = 55.344
+point_y = 10.446
+theta = 90
+distance = 1
+action = idle
+```
+
+Once the ```robot_localization``` is ready this package can be launched because uses the AMCL algorithm. After, the markers of the zones will be displayed in RViz. Yellow squares represents the points of interest. Blue squares represents the size of the zone in order to detect the robot inside of them. 
+
+<img src="images/robot-zone-detection.png" width="100%">
+
+The status of the robot can be checked using the following ros service:
+
+```
+$ rosservice call /robot/robot_pallet_zone/state
+```
+
+It will return the action to perform and the angle needed to pose the robot in front the pallet:
+
+```
+$ "2.4946874:unload"
+```
+
+If the robot call each certain time this service, it will know when OPIL has arrive at a zone and what action, loading or unloading, must to perform.
+
+## rbares_pallet
+
+This folder contains a ROS package used by rbares to perform the loading and unloading of pallets. For debugging purposes a GUI written with Tkinter has been created. To install Tkinter:
+
+```
+$ sudo apt-get install python-tk
+```
+
+This package has three working modes:
+
+**1. Manual:** the user send each step to the robot manually.
+
+**2. Semi-autonomous:** the user only has to confirm the next step.
+
+**3. Autonomous:** when the program is launched or the user press the Run button, the robot will start the loading/unloading automatically when it arrives a loading/unloading zone. 
+
+<img src="images/rbares-pallet-gui.png" width="40%">
+
