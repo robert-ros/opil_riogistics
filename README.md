@@ -343,10 +343,10 @@ environment:
 In the above configuration file a public IP address is needed instead of the IP address of the robot in the network. The reason is that the robot can send data to the server with a local IP but it can not receive anything. This is because the server does not know where to return the information. 
 
 In order to solve this problem, the public IP of the factory network must be used. After that, the network must redirect the requests from the VTT Server to a **specific port and IP**. 
+ 
+In our case the IP address was the IP of the robot assigned in the factory network. The port was the port of the Local SP docker because FIROS was running there. 
 
-In our case the IP address was the IP of the robot assigned in the network factory. The port was the port of the Local SP docker because FIROS was running there. 
-
-From the point of view of the OPIL Server, it sees the public IP of the network factory and is the network who sends the data to the robot. In other words, the OPIL Server knows where is the factory network and the network knows where is the robot.
+From the point of view of the OPIL Server, it sees the public IP of the factory network and is the network who sends the data to the robot. In other words, the OPIL Server knows where is the factory network and the network knows where is the robot.
 
 <img src="images/opil-robot-vtt-connection.png" width="80%">
 
