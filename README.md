@@ -346,7 +346,7 @@ In order to solve this problem, the public IP of the factory network must be use
 
 In our case the IP address was the IP of the robot assigned in the network factory. The port was the port of the Local SP docker because FIROS was running there. 
 
-From the point of view of the OPIL Server, it sees the public IP of the network factory and is the network who sends the data to the robot. In other worlds, the OPIL Server knows where is the network factory and the networks knows where is the robot.
+From the point of view of the OPIL Server, it sees the public IP of the network factory and is the network who sends the data to the robot. In other words, the OPIL Server knows where is the factory network and the network knows where is the robot.
 
 <img src="images/opil-robot-vtt-connection.png" width="80%">
 
@@ -436,7 +436,7 @@ The status of the robot can be checked using the following ros service:
 $ rosservice call /robot/robot_pallet_zone/state
 ```
 
-It will return the action to perform and the angle needed to pose the robot in front the pallet:
+It will return the action to perform and the angle needed to position the robot in front the pallet:
 
 ```
 $ "2.4946874:unload"
