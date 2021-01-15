@@ -348,11 +348,209 @@ In our case the IP address was the IP of the robot assigned in the factory netwo
 
 From the point of view of the OPIL Server, it sees the public IP of the factory network and is the network who sends the data to the robot. In other words, the OPIL Server knows where is the factory network and the network knows where is the robot.
 
-<img src="images/opil-robot-vtt-connection.png" width="80%">
+<img src="images/opil-robot-vtt-connection.png" width="60%">
 
 <!--
 ## opil_robot_stageros
+-->
+
+
 ## opil_san_sensors
+
+
+This folder is a ROS package that contains a docker folder. The purpose of this package is to be a bridge between the SAN module and ROS. In this way, a OPIL sensor can be controlled from ROS. 
+
+First of all, the configuration file of the SAN module can be found in the following path:
+
+```
+$ cd ~/opil_san_sensors/docker 
+```
+
+Inside ```config.json``` file, the parameters must be defined in function of two parts: ip address of the server and the sensors involved.
+
+In the first part, the IP address must be defined. Replace  ```<ip-address>``` with the IP address of the OPIL server.
+
+```
+{
+    "contextBroker": {
+        "host": "<ip-address>",
+        "port": "1026"
+    }
+    "sanCon...
+
+```
+
+In the second part, the OPIL sensors involved are defined. The definition of the sensors must be add inside the array ```"sensors"``` as an object. 
+
+```
+    "sanConfig": {
+        "sensors": [
+
+           // Sensor 1 here...
+        
+           // Sensor 2 here..
+        ]
+
+```
+
+Each sensor is a json object defined for several attributes. These properties depends on the type of the sensor, the manufacturer, ID as so on. Below is a template:
+
+```
+    // Sensor 1 here ...
+
+    {
+        "sensorID": "<SENSOR-NAME>",
+        "operationMode": {
+            "mode": "<mode>"
+        },    
+        "driver": "<python-driver-name>",
+        "driverConfig": {
+            "sensorType": "<sensor-type-name>",
+            "measurementType": "<sensor-type>",
+            "sensorManufacturer": "<company-name>"
+        },
+        "sanID": "<ID-SENSOR-NAME>"
+    },
+
+```
+
+The following table describes each attribute:
+
+| Attribute          | Type | Description  |
+| :-------------     |:----:| :-----|
+| sensorID           | name | Name of the sensor in capital letters. It must be representative as it will be displayed on the HMI |
+| mode               | enum | It can be ```event-driven``` or ```time-series```. The first, when the sensor change its value, upload the state once. The second, it upload the state every certain time interval. |
+| driver             | code | Name of the python script where the driver and SANDriver class are running  |
+| sensorType         | name | Name of the type of the sensor. It must be representative as it will be displayed on the HMI |
+| measurementType    | enum | It can be ```boolean``` used by buttons or ```real``` used by analog sensors  |
+| sensorManufacturer | name | Name of the company in charge of the sensor       |
+| sanID             | name  | Identification name in capital letters. It must be representative because it is used by OPIL server in the background |
+
+
+For example, the sensor below describes a button that is updated once:
+
+```
+{
+    "sensorID": "BUTTON_G1",
+    "operationMode": {
+        "mode": "event-driven"
+    },    
+    "driver": "button_g1_script",
+    "driverConfig": {
+        "sensorType": "SWITCH_SENSOR",
+        "measurementType": "boolean",
+        "sensorManufacturer": "Robotnik Automation"
+    },
+    "sanID": "BUTTON_G1_SAN"
+}
+```
+
+Another example is a photocell that updates its value every second:
+
+```
+{
+    "sensorID": "CELL_2",
+    "operationMode": {
+        "mode": "time-series",
+        "broadcastInterval": "3",
+        "measurementInterval": "1"
+    },    
+    "driver": "cell_2_script",
+    "driverConfig": {
+        "sensorType": "CELL_SENSOR",
+        "measurementType": "boolean",
+        "sensorManufacturer": "Robotnik Automation"
+    },
+    "sanID": "CELL_2_SAN"
+}
+
+```
+
+It is emphasized that **each sensor must have a driver associated**. A driver is a python script that allows to connect the hardware to the SAN module. In order to achieve that, the driver code must inherit from ```SANDriver``` class and must be pass the data received to their methods. 
+
+**The name of the driver class has to match the name of the file**. For example if the class is ```SensorScript``` the file has to be called ```SensorScript.py```. 
+
+Below is a template:
+
+```
+#!/usr/bin/env python
+
+# The the class and the file have to has the same name!!!
+
+import SANDriver
+import random
+
+class SensorScript(SANDriver.SANDriver):
+
+    def setup(self):
+
+        self.setMeta('sensorManufacturer', self.fromConfig("sensorManufacturer"))
+        self.setMeta('measurementType', self.fromConfig("measurementType"))
+        self.setMeta('sensorType', self.fromConfig("sensorType"))
+
+    def get_reading(self):
+
+        sensor_value = random.randint(0,1)
+
+        return sensor_value
+```
+
+As shown in the code above, the ```SensorScript``` class inherits from ```SANDriver```. In this case the hardware is a random function that returns true or false but in practice it can be a CAN, socket or serial communication. 
+
+
+Finally, on the ```docker-compose``` the driver script and ```config.json``` file must be loaded as a volume. All files must be at the same directory level.
+
+```
+version: '3'
+services:
+    san:
+        image: docker.ramp.eu/opil/opil.iot.san:stable
+        privileged: true
+        container_name: 'SAN'
+        stdin_open: true
+        tty: true 
+        network_mode: 'host'
+        restart: unless-stopped
+        volumes:
+           - ./SensorScript.py:/code/Drivers/SensorScript.py
+           - ./config.json:/code/config.json
+        working_dir: /code
+        
+        command: python3 ./san.py
+```
+
+In short, a sensor needs to be defined on the ```config.json``` file as well as to have a python script where the driver is running.
+
+<!--
+// ----------------------------------------------------------
+On the other hand, the sensors defined will be three buttons, three photocells, and two sensors for the automatic door:
+-->
+
+Go to ``` opil_san_sensors/docker ``` and start the SAN docker.
+
+```
+$ docker-compose up
+```
+
+On the other hand, launch the ROS client to establish communication with the SAN docker:
+
+```
+$ roslaunch opil_san_sensors multiple_client.launch
+```
+
+Now, ```rosservice list``` should show one service for each sensor connected to the factory. In our case, for example, if  ```trigger_button``` or ```state_cell``` were called using the ROS service, the OPIL sensors would change their state.
+
+```
+$ rosservice call /san_socket/trigger_button_g1 "{}"
+```
+<!--
+Then:
+-->
+
+
+<img src="images/opil-san-sensors-flowchart.png" width="100%">
+
+<!--
 ## ros_emka_sensors
 -->
 
